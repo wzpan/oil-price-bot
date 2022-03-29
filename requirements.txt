@@ -1,0 +1,5 @@
+qq-bot
+asyncio
+aiohttp
+lxml
+beautifulsoup4
