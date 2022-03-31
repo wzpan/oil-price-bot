@@ -54,29 +54,29 @@ async def _message_handler(event, message: qqbot.Message):
 
     elif "/0号油价" in content:
         split = content.split("/0号油价 ")
-        soup = await get_data(split[1] if len(split)>1 else '深圳')
+        soup = await get_data(split[1] if len(split)>1 and split[1].strip() != '' else u'深圳')
         ret = get_prices_str(soup, 1)
         #await send_weather_ark_message(weather, message.channel_id, message.id)
     
     elif "/92油价" in content:
         split = content.split("/92油价 ")
-        soup = await get_data(split[1] if len(split)>1 else '深圳')
+        soup = await get_data(split[1] if len(split)>1 and split[1].strip() != '' else u'深圳')
         ret = get_prices_str(soup, 2)
         #await send_weather_ark_message(weather, message.channel_id, message.id)
 
     elif "/95油价" in content:
         split = content.split("/95油价 ")
-        soup = await get_data(split[1] if len(split)>1 else '深圳')
+        soup = await get_data(split[1] if len(split)>1 and split[1].strip() != '' else u'深圳')
         ret = get_prices_str(soup, 3)
 
     elif "/油价" in content:
         split = content.split("/油价 ")
-        soup = await get_data(split[1] if len(split)>1 else '深圳')
+        soup = await get_data(split[1] if len(split)>1 and split[1].strip() != '' else u'深圳')
         ret = get_prices_str(soup, 0)
     
     elif "/加油优惠" in content:
         split = content.split("/加油优惠 ")
-        soup = await get_data(split[1] if len(split)>1 else '深圳')
+        soup = await get_data(split[1] if len(split)>1 and split[1].strip() != '' else u'深圳')
         ret = get_discount_str(soup)
 
     send = qqbot.MessageSendRequest(ret, message.id)
