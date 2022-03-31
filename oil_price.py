@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import datetime
 import qqbot
 import os
@@ -9,7 +11,7 @@ from bs4 import BeautifulSoup
 
 CACHE_FILE = os.path.join(os.path.dirname(__file__), "cache.pkl")
 
-async def fetch_data(city_name: str) -> str:
+async def _fetch_data(city_name: str) -> str:
     qqbot.logger.info("解析小熊油耗的数据...")
     url = "https://www.xiaoxiongyouhao.com/fprice/cityprice.php?city=" + city_name
     async with aiohttp.ClientSession() as session:
@@ -20,7 +22,7 @@ async def fetch_data(city_name: str) -> str:
             content = await resp.text()
             return content
 
-def get_cache() -> dict:
+def _get_cache() -> dict:
     if os.path.exists(CACHE_FILE):
         with open(CACHE_FILE, 'rb') as f:
             cache = pickle.load(f)
@@ -28,7 +30,7 @@ def get_cache() -> dict:
     else:
         return None
 
-def update_cache(city_name: str, content: str, cache: dict):
+def _update_cache(city_name: str, content: str, cache: dict):
     qqbot.logger.info("更新缓存数据")
     if not cache:
         cache = dict()
@@ -37,28 +39,47 @@ def update_cache(city_name: str, content: str, cache: dict):
         "content": content
     }
     with open(CACHE_FILE, 'wb') as f:
-        pickle.dump(cache, f)
+        pickle.dump(cache, f)        
 
 async def get_data(city_name: str) -> str:
     # 判断是否有当天的缓存，有的话就直接从缓存读取；
     # 否则从网页读取并覆盖当天缓存
-    cache = get_cache()
+    cache = _get_cache()
     if cache:
         for city, data in cache.items():
             if city == city_name and data['last_updated'] == datetime.date.today():
                 qqbot.logger.info("有缓存，直接从缓存读取")
                 return BeautifulSoup(data['content'], 'html.parser')
-    content = await fetch_data(city_name)
-    update_cache(city_name, content, cache)
+    content = await _fetch_data(city_name)
+    _update_cache(city_name, content, cache)
     return BeautifulSoup(content, 'html.parser')
 
 
-def read_local_data(city_name: str) -> str:
+def _read_local_data(city_name: str) -> str:
     with open('price.mhtml') as f:
         content = f.readlines()
         return ''.join(content)
 
-def parse_price(soup: BeautifulSoup) -> dict:
+def get_menu():
+    return """功能菜单：
+/油价 城市名 
+    查询指定城市当天油价
+    示例： /油价 深圳
+/0号油价 城市名
+    查询指定城市当天0号柴油的油价
+    示例： /0号油价 深圳
+/92油价 城市名
+    查询指定城市当天92号汽油的油价
+    示例： /92油价 深圳
+/95油价 城市名
+    查询指定城市当天95号汽油的油价
+    示例： /95油价 深圳
+/加油优惠 城市名
+    查询指定城市的加油优惠信息
+    示例：/加油优惠 深圳
+"""
+
+def _parse_price(soup: BeautifulSoup) -> dict:
     prices = soup.select('.highlighted-price-high')
     if len(prices) < 2:
         return None
@@ -78,8 +99,9 @@ def get_prices_str(soup: BeautifulSoup, category: int = 0) -> str:
     获取油价
     :param soup: BeautifulSoup 页面解析内容
     :param category: 分类 0：全部；1：0号柴油 2：92号汽油 3：95号汽油
+    :return: 油价字符串
     '''    
-    prices = parse_price(soup)
+    prices = _parse_price(soup)
     try:
         title = prices['title']
         if "0#" in prices:
@@ -104,7 +126,7 @@ def get_prices_str(soup: BeautifulSoup, category: int = 0) -> str:
         qqbot.logger.error(e)
         return "抱歉，获取不到该地区的油价数据"
 
-def parse_discount(soup: BeautifulSoup) -> dict:
+def _parse_discount(soup: BeautifulSoup) -> dict:
     tables = soup.select('table')
     if len(tables) < 2:
         # 不存在优惠数据
@@ -127,7 +149,12 @@ def parse_discount(soup: BeautifulSoup) -> dict:
         return discounts
 
 def get_discount_str(soup: BeautifulSoup) -> str:
-    discounts = parse_discount(soup)
+    '''
+    获取优惠信息
+    :param soup: BeautifulSoup 页面解析内容
+    :return: 优惠信息字符串
+    '''    
+    discounts = _parse_discount(soup)
     try:
         ret = discounts['title']+"\r\n"
         for i in range(len(discounts['data'])):
