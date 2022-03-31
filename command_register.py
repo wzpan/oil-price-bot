@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import qqbot
 
+
 def command(command_str: str):
     def decorator(func):
-        
         async def wrapper(*args, **kwargs):
             if command_str != "" and command_str in args[2].content:
                 qqbot.logger.info("command %s" % command_str)
@@ -13,6 +13,7 @@ def command(command_str: str):
             else:
                 qqbot.logger.debug("skip command %s" % command_str)
                 return None
+
         return wrapper
-    
+
     return decorator
