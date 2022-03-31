@@ -12,63 +12,48 @@ from oil_price import get_data, get_discount_str, get_menu, get_prices_str
 config = YamlUtil.read(os.path.join(os.path.dirname(__file__), "config.yml"))
 
 @command("/菜单")
-async def ask_menu(params: str, event: str, message: qqbot.Message):
+async def ask_menu(city_name: str, event: str, message: qqbot.Message):
     ret = get_menu()
     await _send_message(ret, event, message)
     return True
 
 
 @command("/油价")
-async def ask_price(params: str, event: str, message: qqbot.Message):
-    ret = ""
-    city_names = params.split(" ")
-    for city_name in city_names:
-        soup = await get_data(city_name)
-        ret += "%s\r\n" % get_prices_str(soup, 0)
+async def ask_price(city_name: str, event: str, message: qqbot.Message):
+    city_name = city_name if city_name.strip != "" else default_city
+    ret = get_prices_str(await get_data(city_name), 0)
     await _send_message(ret, event, message)
     return True
 
 
 @command("/0号油价")
-async def ask_price0(params: str, event: str, message: qqbot.Message):
-    ret = ""
-    city_names = params.split(" ")
-    for city_name in city_names:
-        soup = await get_data(city_name)
-        ret += "%s\r\n" % get_prices_str(soup, 1)
+async def ask_price0(city_name: str, event: str, message: qqbot.Message):
+    city_name = city_name if city_name.strip != "" else default_city
+    ret = get_prices_str(await get_data(city_name), 1)
     await _send_message(ret, event, message)
     return True
 
 
 @command("/92油价")
-async def ask_price92(params: str, event: str, message: qqbot.Message):
-    ret = ""
-    city_names = params.split(" ")
-    for city_name in city_names:
-        soup = await get_data(city_name)
-        ret += "%s\r\n" % get_prices_str(soup, 2)
+async def ask_price92(city_name: str, event: str, message: qqbot.Message):
+    city_name = city_name if city_name.strip != "" else default_city
+    ret = get_prices_str(await get_data(city_name), 2)
     await _send_message(ret, event, message)
     return True
 
 
 @command("/95油价")
-async def ask_price95(params: str, event: str, message: qqbot.Message):
-    ret = ""
-    city_names = params.split(" ")
-    for city_name in city_names:
-        soup = await get_data(city_name)
-        ret += "%s\r\n" % get_prices_str(soup, 3)
+async def ask_price95(city_name: str, event: str, message: qqbot.Message):
+    city_name = city_name if city_name.strip != "" else default_city
+    ret = get_prices_str(await get_data(city_name), 3)
     await _send_message(ret, event, message)
     return True
 
 
 @command("/加油优惠")
-async def ask_discount(params: str, event: str, message: qqbot.Message):
-    ret = ""
-    city_names = params.split(" ")
-    for city_name in city_names:
-        soup = await get_data(city_name)
-        ret += "%s\r\n" % get_discount_str(soup)
+async def ask_discount(city_name: str, event: str, message: qqbot.Message):
+    city_name = city_name if city_name.strip != "" else default_city
+    ret = get_discount_str(await get_data(city_name))
     await _send_message(ret, event, message)
     return True
 
@@ -108,7 +93,8 @@ async def _message_handler(event: str, message: qqbot.Message):
 
 
 if __name__ == "__main__":
-    t_token = qqbot.Token(config["token"]["appid"], config["token"]["token"])
+    t_token = qqbot.Token(config["bot"]["appid"], config["bot"]["token"])
+    default_city = config["default_city"]
     # @机器人后推送被动消息
     qqbot_handler = qqbot.Handler(
         qqbot.HandlerType.AT_MESSAGE_EVENT_HANDLER, _message_handler
