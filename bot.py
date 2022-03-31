@@ -11,7 +11,6 @@ from oil_price import get_data, get_discount_str, get_menu, get_prices_str
 
 config = YamlUtil.read(os.path.join(os.path.dirname(__file__), "config.yml"))
 
-
 @command("/菜单")
 async def ask_menu(params: str, event: str, message: qqbot.Message):
     ret = get_menu()
