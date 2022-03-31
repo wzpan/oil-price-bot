@@ -22,7 +22,6 @@ async def ask_menu(city_name: str, event: str, message: qqbot.Message):
 @command("/油价")
 async def ask_price(city_name: str, event: str, message: qqbot.Message):
     city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
-    print(city_name)
     ret = get_prices_str(await get_data(city_name), 0)
     await _send_message(ret, event, message)
     return True
