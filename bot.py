@@ -12,20 +12,29 @@ from oil_price import get_data, get_discount_str, get_menu, get_prices_str
 config = YamlUtil.read(os.path.join(os.path.dirname(__file__), "config.yml"))
 DEFAULT_CITY = config["default_city"]
 
+
+async def _invalid_func(event: str, message: qqbot.Message):
+    await _send_message("请在指令后带上城市名称，例如\r\n/油价 深圳", event, message)
+    return True
+
+
+async def _send_message(content: str, event: str, message: qqbot.Message):
+    msg_api = qqbot.AsyncMessageAPI(t_token, False)
+    dms_api = qqbot.AsyncDmsAPI(t_token, False)
+
+    send = qqbot.MessageSendRequest(content, message.id)
+    if event == "DIRECT_MESSAGE_CREATE":
+        await dms_api.post_direct_message(message.guild_id, send)
+    else:
+        await msg_api.post_message(message.channel_id, send)
+
+
 @command("/菜单")
 async def ask_menu(city_name: str, event: str, message: qqbot.Message):
     ret = get_menu()
     await _send_message(ret, event, message)
     return True
 
-async def _invalid_func(event: str, message: qqbot.Message):
-    """
-    定义无效的参数回调的处理
-    :param event: 事件类型
-    :param message: 事件对象（如监听消息是Message对象）
-    """
-    await _send_message("请在指令后带上城市名称，例如\r\n/油价 深圳", event, message)
-    return True
 
 @command("/油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price(city_name: str, event: str, message: qqbot.Message):
@@ -65,17 +74,6 @@ async def ask_discount(city_name: str, event: str, message: qqbot.Message):
     ret = get_discount_str(await get_data(city_name))
     await _send_message(ret, event, message)
     return True
-
-
-async def _send_message(content: str, event: str, message: qqbot.Message):
-    msg_api = qqbot.AsyncMessageAPI(t_token, False)
-    dms_api = qqbot.AsyncDmsAPI(t_token, False)
-
-    send = qqbot.MessageSendRequest(content, message.id)
-    if event == "DIRECT_MESSAGE_CREATE":
-        await dms_api.post_direct_message(message.guild_id, send)
-    else:
-        await msg_api.post_message(message.channel_id, send)
 
 
 async def _message_handler(event: str, message: qqbot.Message):

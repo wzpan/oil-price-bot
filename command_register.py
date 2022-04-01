@@ -3,7 +3,7 @@
 import qqbot
 
 
-def command(command_str: str, check_param: bool=False, invalid_func=None):
+def command(command_str: str, check_param: bool = False, invalid_func=None):
     def decorator(func):
         async def wrapper(*args, **kwargs):
             if command_str != "" and command_str in args[2].content:
