@@ -18,8 +18,16 @@ async def ask_menu(city_name: str, event: str, message: qqbot.Message):
     await _send_message(ret, event, message)
     return True
 
+async def _invalid_func(event: str, message: qqbot.Message):
+    """
+    定义无效的参数回调的处理
+    :param event: 事件类型
+    :param message: 事件对象（如监听消息是Message对象）
+    """
+    await _send_message("请输入城市名称", event, message)
+    return True
 
-@command("/油价")
+@command("/油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price(city_name: str, event: str, message: qqbot.Message):
     city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 0)
@@ -27,7 +35,7 @@ async def ask_price(city_name: str, event: str, message: qqbot.Message):
     return True
 
 
-@command("/0号油价")
+@command("/0号油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price0(city_name: str, event: str, message: qqbot.Message):
     city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 1)
@@ -35,7 +43,7 @@ async def ask_price0(city_name: str, event: str, message: qqbot.Message):
     return True
 
 
-@command("/92油价")
+@command("/92油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price92(city_name: str, event: str, message: qqbot.Message):
     city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 2)
@@ -43,7 +51,7 @@ async def ask_price92(city_name: str, event: str, message: qqbot.Message):
     return True
 
 
-@command("/95油价")
+@command("/95油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price95(city_name: str, event: str, message: qqbot.Message):
     city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 3)
@@ -51,7 +59,7 @@ async def ask_price95(city_name: str, event: str, message: qqbot.Message):
     return True
 
 
-@command("/加油优惠")
+@command("/加油优惠", check_param=True, invalid_func=_invalid_func)
 async def ask_discount(city_name: str, event: str, message: qqbot.Message):
     city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_discount_str(await get_data(city_name))
