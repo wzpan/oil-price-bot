@@ -24,7 +24,7 @@ async def _invalid_func(event: str, message: qqbot.Message):
     :param event: 事件类型
     :param message: 事件对象（如监听消息是Message对象）
     """
-    await _send_message("请输入城市名称", event, message)
+    await _send_message("请在指令后带上城市名称，例如\r\n/油价 深圳", event, message)
     return True
 
 @command("/油价", check_param=True, invalid_func=_invalid_func)
