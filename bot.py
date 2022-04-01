@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+bot.py: 油价助手的主程序
+
+author: wzpan
+email: m@hahack.com
+"""
+
 import os.path
 
 import qqbot
@@ -14,11 +21,17 @@ DEFAULT_CITY = config["default_city"]
 
 
 async def _invalid_func(event: str, message: qqbot.Message):
+    """
+    当参数不符合要求时的处理函数
+    """
     await _send_message("请在指令后带上城市名称，例如\r\n/油价 深圳", event, message)
     return True
 
 
 async def _send_message(content: str, event: str, message: qqbot.Message):
+    """
+    机器人发送消息
+    """
     msg_api = qqbot.AsyncMessageAPI(t_token, False)
     dms_api = qqbot.AsyncDmsAPI(t_token, False)
 
@@ -97,9 +110,12 @@ async def _message_handler(event: str, message: qqbot.Message):
         if await task("", event, message):
             return
     await _send_message("抱歉，没明白你的意思呢。" + get_menu(), event, message)
+    
 
-
-if __name__ == "__main__":
+def run():
+    """
+    启动机器人
+    """
     t_token = qqbot.Token(config["bot"]["appid"], config["bot"]["token"])
     # @机器人后推送被动消息
     qqbot_handler = qqbot.Handler(
@@ -110,3 +126,7 @@ if __name__ == "__main__":
         qqbot.HandlerType.DIRECT_MESSAGE_EVENT_HANDLER, _message_handler
     )
     qqbot.async_listen_events(t_token, False, qqbot_handler, qqbot_direct_handler)
+
+
+if __name__ == "__main__":
+    run()
