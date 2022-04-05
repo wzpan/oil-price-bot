@@ -17,7 +17,7 @@ from command_register import command
 from oil_price import get_data, get_discount_str, get_menu, get_prices_str
 
 config = YamlUtil.read(os.path.join(os.path.dirname(__file__), "config.yml"))
-DEFAULT_CITY = config["default_city"]
+T_TOKEN = qqbot.Token(config["bot"]["appid"], config["bot"]["token"])
 
 
 async def _invalid_func(event: str, message: qqbot.Message):
@@ -32,8 +32,8 @@ async def _send_message(content: str, event: str, message: qqbot.Message):
     """
     机器人发送消息
     """
-    msg_api = qqbot.AsyncMessageAPI(t_token, False)
-    dms_api = qqbot.AsyncDmsAPI(t_token, False)
+    msg_api = qqbot.AsyncMessageAPI(T_TOKEN, False)
+    dms_api = qqbot.AsyncDmsAPI(T_TOKEN, False)
 
     send = qqbot.MessageSendRequest(content, message.id)
     if event == "DIRECT_MESSAGE_CREATE":
@@ -51,7 +51,6 @@ async def ask_menu(city_name: str, event: str, message: qqbot.Message):
 
 @command("/油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price(city_name: str, event: str, message: qqbot.Message):
-    city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 0)
     await _send_message(ret, event, message)
     return True
@@ -59,7 +58,6 @@ async def ask_price(city_name: str, event: str, message: qqbot.Message):
 
 @command("/0号油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price0(city_name: str, event: str, message: qqbot.Message):
-    city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 1)
     await _send_message(ret, event, message)
     return True
@@ -67,7 +65,6 @@ async def ask_price0(city_name: str, event: str, message: qqbot.Message):
 
 @command("/92油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price92(city_name: str, event: str, message: qqbot.Message):
-    city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 2)
     await _send_message(ret, event, message)
     return True
@@ -75,7 +72,6 @@ async def ask_price92(city_name: str, event: str, message: qqbot.Message):
 
 @command("/95油价", check_param=True, invalid_func=_invalid_func)
 async def ask_price95(city_name: str, event: str, message: qqbot.Message):
-    city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_prices_str(await get_data(city_name), 3)
     await _send_message(ret, event, message)
     return True
@@ -83,7 +79,6 @@ async def ask_price95(city_name: str, event: str, message: qqbot.Message):
 
 @command("/加油优惠", check_param=True, invalid_func=_invalid_func)
 async def ask_discount(city_name: str, event: str, message: qqbot.Message):
-    city_name = city_name if city_name.strip() != "" else DEFAULT_CITY
     ret = get_discount_str(await get_data(city_name))
     await _send_message(ret, event, message)
     return True
@@ -115,8 +110,7 @@ async def _message_handler(event: str, message: qqbot.Message):
 def run():
     """
     启动机器人
-    """
-    t_token = qqbot.Token(config["bot"]["appid"], config["bot"]["token"])
+    """    
     # @机器人后推送被动消息
     qqbot_handler = qqbot.Handler(
         qqbot.HandlerType.AT_MESSAGE_EVENT_HANDLER, _message_handler
@@ -125,7 +119,7 @@ def run():
     qqbot_direct_handler = qqbot.Handler(
         qqbot.HandlerType.DIRECT_MESSAGE_EVENT_HANDLER, _message_handler
     )
-    qqbot.async_listen_events(t_token, False, qqbot_handler, qqbot_direct_handler)
+    qqbot.async_listen_events(T_TOKEN, False, qqbot_handler, qqbot_direct_handler)
 
 
 if __name__ == "__main__":
