@@ -63,22 +63,23 @@ def _read_local_data(city_name: str) -> str:
 
 
 def get_menu():
-    return """功能菜单：
-/油价 城市名 
+    return """
+![菜单#900px #384px](https://wzpan-1253537070.cos.ap-guangzhou.myqcloud.com/misc/menu_small.jpeg)
+## /油价 *城市名*
     查询指定城市当天油价
-    示例： /油价 深圳
-/0号油价 城市名
+    示例： */油价 深圳*
+## /0号油价 *城市名*
     查询指定城市当天0号柴油的油价
-    示例： /0号油价 深圳
-/92油价 城市名
+    示例： */0号油价 深圳*
+## /92油价 *城市名*
     查询指定城市当天92号汽油的油价
-    示例： /92油价 深圳
-/95油价 城市名
+    示例： */92油价 深圳*
+## /95油价 *城市名*
     查询指定城市当天95号汽油的油价
-    示例： /95油价 深圳
-/加油优惠 城市名
+    示例： */95油价 深圳*
+## /加油优惠 *城市名*
     查询指定城市的加油优惠信息
-    示例：/加油优惠 深圳
+    示例：*/加油优惠 深圳*
 """
 
 
@@ -144,14 +145,16 @@ def _parse_discount(soup: BeautifulSoup) -> dict:
         for i in range(1, len(lines)):
             line = lines[i]
             cols = line.select("td")
-            data.append(
-                {
+            dt = {
                     "zone": cols[1].text.strip(),
                     "name": cols[2].text.strip(),
                     "num": cols[3].text.strip(),
-                    "price": cols[4].text.strip(),
+                    "price": cols[4].text.strip()                    
                 }
-            )
+            anchors = cols[2].find_all('a', href=True)
+            if anchors:
+                dt['url'] = anchors[0]['href']
+            data.append(dt)
         discounts["data"] = data
         return discounts
 
@@ -164,18 +167,19 @@ def get_discount_str(soup: BeautifulSoup) -> str:
     """
     discounts = _parse_discount(soup)
     try:
-        ret = discounts["title"] + "\r\n"
+        #ret = '#' + discounts["title"]
+        ret = '![优惠信息#900px #384px](https://wzpan-1253537070.cos.ap-guangzhou.myqcloud.com/misc/petrol_station.jpeg)'
         for i in range(len(discounts["data"])):
             discount = discounts["data"][i]
             ret += """
-优惠排名：#{}
-区县：{}
-加油站名称：{}
-油价：{}
+**优惠排名**：#{}
+**区县**：{}
+**加油站**：{}
+**油价**：{}
 """.format(
                 i + 1, discount["zone"], discount["name"], discount["price"]
             )
-        ret += "\n本表出自小熊油耗™。数据根据本次调价后92#/E92#的车友实际支付价格统计。实际优惠政策可能比较复杂，请车友先打加油站电话核实后再前往。"
+        ret += "\r\n> 本表出自小熊油耗™。数据根据本次调价后92#/E92#的车友实际支付价格统计。实际优惠政策可能比较复杂，请车友先打加油站电话核实后再前往。"
         return ret
     except Exception as e:
         qqbot.logger.error(e)

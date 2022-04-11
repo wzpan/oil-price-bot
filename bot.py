@@ -11,7 +11,7 @@ import os.path
 
 import qqbot
 from qqbot.core.util.yaml_util import YamlUtil
-from qqbot.model.message import CreateDirectMessageRequest
+from qqbot.model.message import MessageMarkdown
 
 from command_register import command
 from oil_price import get_data, get_discount_str, get_menu, get_prices_str
@@ -28,14 +28,19 @@ async def _invalid_func(event: str, message: qqbot.Message):
     return True
 
 
-async def _send_message(content: str, event: str, message: qqbot.Message):
+async def _send_message(content: str, event: str, message: qqbot.Message, is_markdown: bool = False):
     """
     机器人发送消息
     """
     msg_api = qqbot.AsyncMessageAPI(T_TOKEN, False)
     dms_api = qqbot.AsyncDmsAPI(T_TOKEN, False)
-
-    send = qqbot.MessageSendRequest(content, message.id)
+    
+    send = qqbot.MessageSendRequest(content=content, msg_id=message.id)
+    if is_markdown and event != "DIRECT_MESSAGE_CREATE":
+        markdown = MessageMarkdown()
+        markdown.content = content
+        send = qqbot.MessageSendRequest(content="", markdown=markdown, msg_id=message.id)
+    
     if event == "DIRECT_MESSAGE_CREATE":
         await dms_api.post_direct_message(message.guild_id, send)
     else:
@@ -45,7 +50,7 @@ async def _send_message(content: str, event: str, message: qqbot.Message):
 @command("/菜单")
 async def ask_menu(city_name: str, event: str, message: qqbot.Message):
     ret = get_menu()
-    await _send_message(ret, event, message)
+    await _send_message(ret, event, message, True)
     return True
 
 
@@ -80,7 +85,7 @@ async def ask_price95(city_name: str, event: str, message: qqbot.Message):
 @command("/加油优惠", check_param=True, invalid_func=_invalid_func)
 async def ask_discount(city_name: str, event: str, message: qqbot.Message):
     ret = get_discount_str(await get_data(city_name))
-    await _send_message(ret, event, message)
+    await _send_message(ret, event, message, True)
     return True
 
 
