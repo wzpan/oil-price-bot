@@ -168,7 +168,7 @@ def get_discount_str(soup: BeautifulSoup) -> str:
     discounts = _parse_discount(soup)
     try:
         #ret = '#' + discounts["title"]
-        ret = '![优惠信息#900px #384px](https://wzpan-1253537070.cos.ap-guangzhou.myqcloud.com/misc/petrol_station.jpeg)'
+        ret = '![优惠信息#900px #384px](https://wzpan-1253537070.cos.ap-guangzhou.myqcloud.com/misc/oil_station.jpeg)'
         for i in range(len(discounts["data"])):
             discount = discounts["data"][i]
             ret += """
